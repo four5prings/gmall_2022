@@ -20,7 +20,6 @@ import java.util.Date
 object DauHandler {
   /**
    * 批次内 去重
-   *
    * @param filterByRedisDStream
    */
   def filterByGroup(filterByRedisDStream: DStream[StartUpLog]) = {
@@ -49,8 +48,7 @@ object DauHandler {
   }
 
   /**
-   * 进行批次内去重 将DStream中的每一个rdd中的value，与redis的进行过滤使用fliter
-   *
+   * 进行批次间去重 将DStream中的每一个rdd中的value，与redis的进行过滤使用fliter
    * @param StartUplogDStream
    */
   def filterByRedis(StartUplogDStream: DStream[StartUpLog]) = {
