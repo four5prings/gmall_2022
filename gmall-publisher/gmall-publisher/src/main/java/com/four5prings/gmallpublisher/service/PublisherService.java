@@ -10,4 +10,8 @@ public interface PublisherService {
     public Integer getDauTotal(String date);
 
     public Map getDauTotalHours(String date);
+
+    public Double getOrderAmountTotal(String date);
+
+    public Map<String,Double> getOrderAmountHourMap(String date);
 }
