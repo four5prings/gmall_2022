@@ -57,7 +57,7 @@ public class CanalClient {
                         //TODO 获取rowDataList数据
                         List<CanalEntry.RowData> rowDatasList = rowChange.getRowDatasList();
                         //TODO 根据条件获取数据
-                        handler(tableName,eventType,rowDatasList);
+                        handler(tableName, eventType, rowDatasList);
                     }
                 }
             }
@@ -67,18 +67,27 @@ public class CanalClient {
 
     private static void handler(String tableName, CanalEntry.EventType eventType, List<CanalEntry.RowData> rowDatasList) {
         //获取订单表中的新增数据
-        if ("order_info".equals(tableName)&&eventType.equals(CanalEntry.EventType.INSERT)){
-            for (CanalEntry.RowData rowData : rowDatasList) {
-                //获取存放每个列的集合
-                List<CanalEntry.Column> afterColumnsList = rowData.getAfterColumnsList();
-                //获取每个列
-                JSONObject jsonObject = new JSONObject();
-                for (CanalEntry.Column column : afterColumnsList) {
-                    jsonObject.put(column.getName(),column.getValue());
-                }
-                System.out.println(jsonObject.toString());
-                MyKafkaSender.send(GmallConstants.KAFKA_TOPIC_ORDER,jsonObject.toString());
+        if ("order_info".equals(tableName) && eventType.equals(CanalEntry.EventType.INSERT)) {
+            saveToKafka(rowDatasList, GmallConstants.KAFKA_TOPIC_ORDER);
+        } else if ("order_detail".equals(tableName) && eventType.equals(CanalEntry.EventType.INSERT)) {
+            saveToKafka(rowDatasList, GmallConstants.KAFKA_TOPIC_ORDER_DETAIL);
+        } else if ("user_info".equals(tableName)
+                && (eventType.equals(CanalEntry.EventType.INSERT) || eventType.equals(CanalEntry.EventType.UPDATE))) {
+            saveToKafka(rowDatasList,GmallConstants.KAFKA_TOPIC_USER);
+        }
+    }
+
+    private static void saveToKafka(List<CanalEntry.RowData> rowDatasList, String topic) {
+        for (CanalEntry.RowData rowData : rowDatasList) {
+            //获取存放每个列的集合
+            List<CanalEntry.Column> afterColumnsList = rowData.getAfterColumnsList();
+            //获取每个列
+            JSONObject jsonObject = new JSONObject();
+            for (CanalEntry.Column column : afterColumnsList) {
+                jsonObject.put(column.getName(), column.getValue());
             }
+            System.out.println(jsonObject.toString());
+            MyKafkaSender.send(topic, jsonObject.toString());
         }
     }
 }
